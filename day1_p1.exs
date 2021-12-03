@@ -1,6 +1,6 @@
 File.stream!("day1.txt")
-|> Enum.map(&(&1 |> String.trim() |> String.to_integer()))
-|> Enum.chunk_every(3, 1)
+|> Stream.map(&(&1 |> String.trim() |> String.to_integer()))
+|> Stream.chunk_every(3, 1)
 |> Enum.reduce(0, fn chunked_list, acc ->
   increased =
     case chunked_list do
