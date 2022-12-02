@@ -1,9 +1,4 @@
-import os, sys
-
-FILENAME = "day1_p1.txt"
-
-path = os.path.join(sys.path[0], FILENAME)
-file = open(path)
+file = open("data.txt")
 
 most_calories = 0
 current_sum = 0
