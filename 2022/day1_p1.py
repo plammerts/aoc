@@ -1,8 +1,6 @@
-# Number of calories each elf is carrying
-# 
 import os, sys
 
-FILENAME = "day1.txt"
+FILENAME = "day1_p1.txt"
 
 path = os.path.join(sys.path[0], FILENAME)
 file = open(path)
