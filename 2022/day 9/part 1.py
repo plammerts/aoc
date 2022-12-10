@@ -1,8 +1,5 @@
 file = open("data.txt")
 lines = file.read().split('\n')
-visited = set()
-H = [0, 0]
-T = [0, 0]
 
 
 class Rope:
