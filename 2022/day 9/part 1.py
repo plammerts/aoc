@@ -12,35 +12,39 @@ class Rope:
         self.visited = {(0, 0)}
 
     def left(self):
-        if self.same_y() and not self.same_x():
-            self.T[0] -= 1
         self.H[0] -= 1
-        if not self.same_y() and self.uncoupled_x():
-            self.T = [self.H[0] + 1, self.H[1]]
+        if self.uncoupled_x():
+            if self.same_y():
+                self.T[0] -= 1
+            else:
+                self.T = [self.H[0] + 1, self.H[1]]
         self.update_visited()
 
     def right(self):
-        if self.same_y() and not self.same_x():
-            self.T[0] += 1
         self.H[0] += 1
-        if not self.same_y() and self.uncoupled_x():
-            self.T = [self.H[0] - 1, self.H[1]]
+        if self.uncoupled_x():
+            if self.same_y():
+                self.T[0] += 1
+            else:
+                self.T = [self.H[0] - 1, self.H[1]]
         self.update_visited()
 
     def up(self):
-        if self.same_x() and not self.same_y():
-            self.T[1] += 1
         self.H[1] += 1
-        if not self.same_x() and self.uncoupled_y():
-            self.T = [self.H[0], self.H[1] - 1]
+        if self.uncoupled_y():
+            if self.same_x():
+                self.T[1] += 1
+            else:
+                self.T = [self.H[0], self.H[1] - 1]
         self.update_visited()
 
     def down(self):
-        if self.same_x() and not self.same_y():
-            self.T[1] -= 1
         self.H[1] -= 1
-        if not self.same_x() and self.uncoupled_y():
-            self.T = [self.H[0], self.H[1] + 1]
+        if self.uncoupled_y():
+            if self.same_x():
+                self.T[1] -= 1
+            else:
+                self.T = [self.H[0], self.H[1] + 1]
         self.update_visited()
 
     def same_x(self):
