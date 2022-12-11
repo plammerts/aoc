@@ -1,4 +1,3 @@
-import re
 file = open("data.txt")
 monkeys = []
 lines = file.read().split('\n')
@@ -78,16 +77,6 @@ rounds = 20
 for _ in range(rounds):
     for monkey in monkeys:
         monkey.run()
-
-for monkey in monkeys:
-    print(monkey.index)
-    print(monkey.items)
-    print(monkey.inspects)
-    # print(monkey.operation)
-    # print(monkey.operation_number)
-    # print(monkey.test_number)
-    # print(monkey.monkey_true)
-    # print(monkey.monkey_false)
 
 top_two = sorted([monkey.inspects for monkey in monkeys], reverse=True)[:2]
 print(top_two[0] * top_two[1])
