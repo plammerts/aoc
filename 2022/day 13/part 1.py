@@ -15,18 +15,18 @@ for line in lines:
 
 
 def is_right_order(left, right):
-    if right == []:
+    if right == None:
         return False
-    elif left == []:
+    elif left == None:
         return True
     elif isinstance(left, list) and isinstance(right, list):
-        for l, r in list(itertools.zip_longest(left, right, fillvalue=[])):
+        for l, r in list(itertools.zip_longest(left, right)):
             res = is_right_order(l, r)
             if res == None:
                 continue
             else:
                 return res
-    elif isinstance(left, list):
+    elif isinstance(left, list) and isinstance(right, int):
         return is_right_order(left, [right])
     elif isinstance(right, list) and isinstance(left, int):
         return is_right_order([left], right)
@@ -35,6 +35,8 @@ def is_right_order(left, right):
     elif left < right:
         return True
     elif left == right:
+        return None
+    else:
         return None
 
 
