@@ -51,8 +51,6 @@ def drop_sand(grid, x, y):
     elif (x, y) in grid and grid[x, y] == '.' and (x, y+1) in grid:
         grid[x, y] = 'o'
         return grid
-    # elif (y - max_y) < 5:
-    #     return drop_sand(grid, x, y+1)
     else:
         return "inf"
 
