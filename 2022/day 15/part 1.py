@@ -40,19 +40,13 @@ def manhattan_distance(x1, y1, x2, y2):
 #                 row += grid[x, y]
 #         print(row)
 
-
+Y = 2000000
+occupied = set()
 for sensor, beacon in zip(sensors, beacons):
     dist = manhattan_distance(sensor[0], sensor[1], beacon[0], beacon[1])
-    print(dist)
-    for y in range(sensor[1] - dist, sensor[1] + dist + 1):
-        distx = dist - abs(y - sensor[1])
-        if distx == 0:
-            grid[sensor[0], y] = '#'
-        for x in range(sensor[0] - distx, sensor[0] + distx + 1):
-            grid[x, y] = '#'
+    if Y in range(sensor[1] - dist, sensor[1] + dist):
+        distx = dist - abs(Y - sensor[1])
+        for x in range(sensor[0] - distx, sensor[0] + distx):
+            occupied.add(x)
 
-    # grid[sensor[0], sensor[1]] = 'S'
-    # grid[beacon[0], beacon[1]] = 'B'
-
-num_occupied = len([grid[coord] for coord in grid if coord[1] == 11 and grid[coord] == '#'])
-print("Answer: ", num_occupied)
+print("Answer: ", len(occupied))
