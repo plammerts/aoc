@@ -1,53 +1,29 @@
-import re
-
+import sys, re
+from collections import defaultdict
 
 file = open("data.txt")
-lines = file.read().split('\n')
+lines = file.read()
 
-beacons = []
-sensors = []
+pattern = "Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)"
+L = [tuple(map(int, x)) for x in re.findall(pattern, lines)]
 
-for line in lines:
-    [groups] = re.findall(
-        r'Sensor at x=(-?\d*), y=(-?\d*): closest beacon is at x=(-?\d*), y=(-?\d*)', line)
-    groups = [int(x) for x in groups]
-    sensors.append([groups[0], groups[1]])
-    beacons.append([groups[2], groups[3]])
+def merge(L):
+    idx, L = 0, sorted(L)
+    for p in L:
+        if L[idx][1] >= p[0]: L[idx] = (L[idx][0], max(L[idx][1], p[1]))
+        else: idx, L[idx] = idx+1, p
+    return L[:idx+1]
 
-y_vals = [coord[1] for coord in sensors] + [coord[1] for coord in beacons]
-x_vals = [coord[0] for coord in sensors] + [coord[0] for coord in beacons]
-min_y = min(y_vals)
-max_y = max(y_vals)
-min_x = min(x_vals)
-max_x = max(x_vals)
-grid = {}
+mn, mx, Intervals = 0, 4000000, defaultdict(list)
+for x1, y1, x2, y2 in L:
+    d = abs(x2 - x1) + abs(y2 - y1)
+    for row in range(-d, d+1): Intervals[y1+row].append((x1-(d-abs(row)), x1+(d-abs(row))))
 
-def manhattan_distance(x1, y1, x2, y2):
-    return abs(y2 - y1) + abs(x2 - x1)
+for y in Intervals:
+    I = merge(Intervals[y])
+    I[0], I[-1] = (max(mn, I[0][0]), max(mn, I[0][1])), (min(mx, I[-1][0]), min(mx, I[-1][1]))
 
-
-
-for Y in range(0, 20):
-    print(Y)
-    occupied = set()
-    for sensor, beacon in zip(sensors, beacons):
-        dist = manhattan_distance(sensor[0], sensor[1], beacon[0], beacon[1])
-        miny = sensor[1] - dist
-        miny = miny if miny > 0 else 0
-        maxy = sensor[1] + dist
-        maxy = maxy if maxy < 20 else 20
-        if Y >= miny and Y <= maxy:
-            distx = dist - abs(Y - sensor[1])
-            minx = sensor[0] - distx
-            minx = minx if minx > 0 else 0
-            maxx = sensor[0] + distx
-            maxx = maxx if maxx < 20 else 20
-            # for x in range(minx, maxx):
-            #     occupied.add(x) 
-            occupied.update(range(minx, maxx))
-    if len(occupied) > 0 and len(occupied) != len(range(min(occupied), max(occupied) + 1)):
-        print(len(occupied))
-        print(len(range(min(occupied), max(occupied))))
-        print("Fuock")
-
-print("Answer: ", len(occupied))
+    if mn <= y <= mx and sum(1+x2-x1 for x1, x2 in I) <= mx:
+        x = next(I[i][0] - 1 for i in range(1, len(I)) if I[i][0] - I[i-1][1] > 1)
+        print(4000000*x + y)
+        break
