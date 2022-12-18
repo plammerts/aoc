@@ -1,9 +1,11 @@
 from __future__ import annotations
 import re
+import itertools
 
 file = open("data.txt")
 lines = file.read().split('\n')
 valves = {}
+
 
 class Valve:
     def __init__(self, index, id, flow, to) -> None:
@@ -11,6 +13,7 @@ class Valve:
         self.id = id
         self.flow = flow
         self.to = to
+
 
 for index, line in enumerate(lines):
     [groups] = re.findall(
@@ -20,84 +23,59 @@ for index, line in enumerate(lines):
     valve = Valve(index=index, id=groups[0], flow=int(groups[1]), to=to)
     valves[valve.id] = valve
 
+
 def shortest_paths(valves):
     dist = [[10000 for _ in range(len(valves))] for _ in range(len(valves))]
     next = [[None for _ in range(len(valves))] for _ in range(len(valves))]
-    # shortest_paths = [[[] for _ in range(len(valves))] for _ in range(len(valves))]
+
     for v in valves:
         valve = valves[v]
         for to in valve.to:
             to_valve = valves[to]
             dist[valve.index][to_valve.index] = 1
             next[valve.index][to_valve.index] = to_valve.id
-        
+
         dist[valve.index][valve.index] = 0
         next[valve.index][valve.index] = valve.id
-    
+
     for k in range(len(valves)):
         for i in range(len(valves)):
             for j in range(len(valves)):
                 if dist[i][j] > dist[i][k] + dist[k][j]:
                     dist[i][j] = dist[i][k] + dist[k][j]
                     next[i][j] = next[i][k]
-    
-    # for u in valves:
-    #     u = valves[u]
-    #     for v in valves:
-    #         v = valves[v]
-    #         if next[u.index][v.index] != None:
-    #             path = [u.id]
-    #             check_index = u.index
-    #             to_index = v.index
-    #             while check_index != to_index:
-    #                 id = next[check_index][to_index]
-    #                 check_index = valves[id].index
-    #                 path.append(id)
-    #             shortest_paths[u.index][v.index] = path
 
     return dist
 
-def order(current_valve, valves, shortest_paths, to_visit, visit_order, total_cost):
-    current_valve = valves[current_valve]
-    for to in to_visit:
-        to = valves[to]
-        cost = dist[current_valve.index][to.index]
-        if cost < total_cost:
+
+def paths(current_valve, valves, distances, path, total_cost, to_visit):
+    for next in to_visit:
+        dist = distances[valves[current_valve].index][valves[next].index]
+        if dist < total_cost:
             tv = to_visit.copy()
-            tv.remove(to.id)
-            yield from order(to.id, valves, shortest_paths, tv, visit_order + [to.id], total_cost - cost)
-    yield visit_order
+            tv.remove(next)
+            yield from paths(next, valves, distances, path + [next], total_cost - dist, tv)
+    yield path
 
 
-def calc_vented(valves, dist, visit_order, time_remaining: int) -> int:
-    current = "AA"
+def pressure(valves, distances, path) -> int:
     pressure = 0
+    total_time = 30
+    current = "AA"
 
-    for to in visit_order:
+    for to in path:
         current = valves[current]
         to = valves[to]
-        cost = dist[current.index][to.index]
-        time_remaining -= cost + 1
-        pressure += to.flow * time_remaining
+        distance = distances[current.index][to.index]
+        total_time -= distance + 1
+        pressure += to.flow * total_time
         current = to.id
 
     return pressure
 
-dist = shortest_paths(valves)
-print(dist)
-unjammed_valves = [v for v in valves if valves[v].flow > 0]
-for v in valves:
-    valve = valves[v]
-    print(valve.id)
-    print(dist[valve.index])
 
-visit_order = order("AA", valves, dist, unjammed_valves, [], 30)
-
-max_pressure = 0
-for visit_order in visit_order:
-    pressure = calc_vented(valves, dist, visit_order, 30)
-
-    if pressure > max_pressure:
-        max_pressure = pressure
-
-print(max_pressure)
+distances = shortest_paths(valves)
+to_visit = [v for v in valves if valves[v].flow > 0]
+all_paths = paths("AA", valves, distances, [], 30, to_visit)
+pressure = max([pressure(valves, distances, path) for path in all_paths])
+print("Answer: ", pressure)
