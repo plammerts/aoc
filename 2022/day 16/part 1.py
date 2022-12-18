@@ -23,7 +23,7 @@ for index, line in enumerate(lines):
 def shortest_paths(valves):
     dist = [[10000 for _ in range(len(valves))] for _ in range(len(valves))]
     next = [[None for _ in range(len(valves))] for _ in range(len(valves))]
-    shortest_paths = [[[] for _ in range(len(valves))] for _ in range(len(valves))]
+    # shortest_paths = [[[] for _ in range(len(valves))] for _ in range(len(valves))]
     for v in valves:
         valve = valves[v]
         for to in valve.to:
@@ -41,27 +41,27 @@ def shortest_paths(valves):
                     dist[i][j] = dist[i][k] + dist[k][j]
                     next[i][j] = next[i][k]
     
-    for u in valves:
-        u = valves[u]
-        for v in valves:
-            v = valves[v]
-            if next[u.index][v.index] != None:
-                path = [u.id]
-                check_index = u.index
-                to_index = v.index
-                while check_index != to_index:
-                    id = next[check_index][to_index]
-                    check_index = valves[id].index
-                    path.append(id)
-                shortest_paths[u.index][v.index] = path
+    # for u in valves:
+    #     u = valves[u]
+    #     for v in valves:
+    #         v = valves[v]
+    #         if next[u.index][v.index] != None:
+    #             path = [u.id]
+    #             check_index = u.index
+    #             to_index = v.index
+    #             while check_index != to_index:
+    #                 id = next[check_index][to_index]
+    #                 check_index = valves[id].index
+    #                 path.append(id)
+    #             shortest_paths[u.index][v.index] = path
 
-    return shortest_paths
+    return dist
 
 def order(current_valve, valves, shortest_paths, to_visit, visit_order, total_cost):
     current_valve = valves[current_valve]
     for to in to_visit:
         to = valves[to]
-        cost = len(shortest_paths[current_valve.index][to.index])
+        cost = dist[current_valve.index][to.index]
         if cost < total_cost:
             tv = to_visit.copy()
             tv.remove(to.id)
@@ -69,32 +69,33 @@ def order(current_valve, valves, shortest_paths, to_visit, visit_order, total_co
     yield visit_order
 
 
-def calc_vented(valves, shortest_paths, visit_order, time_remaining: int) -> int:
+def calc_vented(valves, dist, visit_order, time_remaining: int) -> int:
     current = "AA"
     pressure = 0
 
     for to in visit_order:
         current = valves[current]
         to = valves[to]
-        cost = len(shortest_paths[current.index][to.index])
+        cost = dist[current.index][to.index]
         time_remaining -= cost + 1
         pressure += to.flow * time_remaining
         current = to.id
 
     return pressure
 
-shortest_paths = shortest_paths(valves)
+dist = shortest_paths(valves)
+print(dist)
 unjammed_valves = [v for v in valves if valves[v].flow > 0]
 for v in valves:
     valve = valves[v]
     print(valve.id)
-    print(shortest_paths[valve.index])
+    print(dist[valve.index])
 
-visit_order = order("AA", valves, shortest_paths, unjammed_valves, [], 30)
+visit_order = order("AA", valves, dist, unjammed_valves, [], 30)
 
 max_pressure = 0
 for visit_order in visit_order:
-    pressure = calc_vented(valves, shortest_paths, visit_order, 30)
+    pressure = calc_vented(valves, dist, visit_order, 30)
 
     if pressure > max_pressure:
         max_pressure = pressure
