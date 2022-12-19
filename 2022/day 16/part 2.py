@@ -1,5 +1,6 @@
 from __future__ import annotations
 import re
+import itertools
 
 file = open("data.txt")
 lines = file.read().split('\n')
@@ -59,7 +60,7 @@ def paths(current_valve, valves, distances, path, total_cost, to_visit):
 
 def pressure(valves, distances, path) -> int:
     pressure = 0
-    total_time = 30
+    total_time = 26
     current = "AA"
 
     for to in path:
@@ -75,6 +76,18 @@ def pressure(valves, distances, path) -> int:
 
 distances = shortest_paths(valves)
 to_visit = [v for v in valves if valves[v].flow > 0]
-all_paths = paths("AA", valves, distances, [], 30, to_visit)
-pressure = max([pressure(valves, distances, path) for path in all_paths])
-print("Answer: ", pressure)
+all_paths = paths("AA", valves, distances, [], 26, to_visit)
+pressures = [(pressure(valves, distances, path), path) for path in all_paths]
+max_pressure = 0
+for index, (p1, path1) in enumerate(sorted(pressures, reverse=True, key=lambda x: x[0])):
+    if p1 * 2 < max_pressure:
+        break
+    for p2, path2 in pressures[index+1:]:
+        if len(set(path1) & set(path2)) == 0:
+            p = p1 + p2
+            if p > max_pressure:
+                print(max_pressure)
+                max_pressure = p
+
+
+print("Answer: ", max_pressure)
